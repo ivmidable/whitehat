@@ -30,6 +30,7 @@ pub struct ApproveSolHack<'info> {
     #[account(
         mut,
         has_one = protocol,
+        has_one = payout,
         close = owner,
         seeds = [b"hack", protocol.key().as_ref(), hack.amount.to_le_bytes().as_ref(), hack.seed.to_le_bytes().as_ref()],
         bump = hack.bump,
