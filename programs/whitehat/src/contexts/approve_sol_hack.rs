@@ -8,21 +8,21 @@ pub struct ApproveSolHack<'info> {
     pub owner: Signer<'info>,
     #[account(
         seeds = [b"auth", protocol.key().as_ref()],
-        bump
+        bump = protocol.auth_bump
     )]
     /// CHECK: This is safe
     auth: UncheckedAccount<'info>,
     #[account(
         mut,
         seeds = [b"vault", protocol.key().as_ref()],
-        bump
+        bump = protocol.vault_bump
     )]
     vault: SystemAccount<'info>,
     #[account(
         mut,
         has_one = owner,
         seeds = [b"protocol", owner.key().as_ref()],
-        bump,
+        bump = protocol.state_bump,
     )]
     pub protocol: Account<'info, Protocol>,
     #[account(mut)]
@@ -30,8 +30,9 @@ pub struct ApproveSolHack<'info> {
     #[account(
         mut,
         has_one = protocol,
+        close = owner,
         seeds = [b"hack", protocol.key().as_ref(), hack.amount.to_le_bytes().as_ref(), hack.seed.to_le_bytes().as_ref()],
-        bump,
+        bump = hack.bump,
     )]
     pub hack: Account<'info, SolHack>,
     pub system_program: Program<'info, System>,

@@ -7,7 +7,6 @@ pub struct SolHack {
     pub payout: Pubkey,
     pub protocol: Pubkey,
     pub amount: u64,
-    pub reviewed: bool,
     pub created_at: i64,
     pub bump: u8,
     pub seed: u64,

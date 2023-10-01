@@ -176,14 +176,14 @@ describe("whitehat", () => {
       .rpc()
       .then(confirmTx)
       .then(async () => {
-        console.log("new vault balance : ", await connection.getBalance(vault));
+        console.log(
+          "new vault balance : ",
+          (await connection.getBalance(vault)) / LAMPORTS_PER_SOL + " sol"
+        );
       });
   });
 
   it("approve hack", async () => {
-    const hackPda = await program.account.solHack.fetch(hack);
-    console.log("hack pda : ", hackPda);
-
     await program.methods
       .approveSolHack()
       .accounts({
@@ -193,17 +193,21 @@ describe("whitehat", () => {
         hack,
         auth,
         vault,
-        // vulnerability: doxxVulnerability,
+        // vulnerability,
         systemProgram: SystemProgram.programId,
       })
       .signers([owner])
       .rpc()
       .then(confirmTx)
       .then(async () => {
-        console.log("new vault balance : ", await connection.getBalance(vault));
+        console.log(
+          "new vault balance : ",
+          (await connection.getBalance(vault)) / LAMPORTS_PER_SOL + " sol"
+        );
         console.log(
           "new payout balance : ",
-          await connection.getBalance(payout.publicKey)
+          (await connection.getBalance(payout.publicKey)) / LAMPORTS_PER_SOL +
+            " sol"
         );
       });
   });
