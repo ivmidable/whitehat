@@ -53,6 +53,10 @@ impl<'info> ApproveSolHack<'info> {
         // pub bump: u8,
         // pub seed: u64,
 
+        // hack amount = 100 %
+        // due amount = protocol %
+        // due amount = protocol % * amount / 100
+
         let amount = protocol.percent * hack.amount / 100;
         protocol.paid += amount;
 
