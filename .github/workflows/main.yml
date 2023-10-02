@@ -1,11 +1,14 @@
 name: main
-on: [push]
+
+on: 
+  push:
+    branches: main
 jobs:
-  run-anchor-test:
+  anchor-test:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - uses: metadaoproject/anchor-test@v1.2
+      - uses: ez-krk/whitehat/.github/actions/test.yml@main
       with:
         anchor-version: "0.24.2"
         solana-cli-version: "1.10.32"
