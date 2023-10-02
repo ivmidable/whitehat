@@ -1,4 +1,4 @@
-name: example-workflow
+name: main
 on: [push]
 jobs:
   run-anchor-test:
