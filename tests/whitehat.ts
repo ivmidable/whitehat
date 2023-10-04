@@ -60,13 +60,8 @@ describe("whitehat", () => {
   const amount = new BN(10 * LAMPORTS_PER_SOL);
 
   const hack = PublicKey.findProgramAddressSync(
-    // b"hack", protocol.key().as_ref(), amount.to_le_bytes().as_ref(), seed.to_le_bytes().as_ref()
-    [
-      Buffer.from("hack"),
-      protocol.toBytes(),
-      amount.toBuffer("le", 8),
-      seed.toBuffer("le", 8),
-    ],
+    // b"hack", protocol.key().as_ref(), amount.to_le_bytes().as_ref()
+    [Buffer.from("hack"), protocol.toBytes(), amount.toBuffer("le", 8)],
     program.programId
   )[0];
 
@@ -121,7 +116,11 @@ describe("whitehat", () => {
     )[0];
 
     await program.methods
-      .reportVulnerability(Buffer.from(message), seed)
+      .reportVulnerability(
+        Buffer.from(message),
+        new BN(protocolPda.vulnerabilities.toNumber() + 1),
+        seed
+      )
       .accounts({
         signer: signer.publicKey,
         payout: payout.publicKey,
@@ -137,8 +136,12 @@ describe("whitehat", () => {
   it("approve vulnerability", async () => {
     const protocolPda = await program.account.protocol.fetch(protocol);
 
+    console.log(
+      `protocol have ${protocolPda.vulnerabilities.toNumber()} vulnerabilities`
+    );
+
     const vulnerability = PublicKey.findProgramAddressSync(
-      // b"anon", protocol.key().as_ref(), protocol.vulnerabilities.to_le_bytes().as_ref(), seed.to_le_bytes().as_ref()
+      // b"vulnerability", protocol.key().as_ref(), id.to_le_bytes().as_ref(), seed.to_le_bytes().as_ref()
       [
         Buffer.from("vulnerability"),
         protocol.toBytes(),
@@ -161,12 +164,26 @@ describe("whitehat", () => {
   });
 
   it("deposit hacked funds", async () => {
+    const protocolPda = await program.account.protocol.fetch(protocol);
+
+    const vulnerability = PublicKey.findProgramAddressSync(
+      // b"vulnerability", protocol.key().as_ref(), id.to_le_bytes().as_ref(), seed.to_le_bytes().as_ref()
+      [
+        Buffer.from("vulnerability"),
+        protocol.toBytes(),
+        protocolPda.vulnerabilities.toArrayLike(Buffer, "le", 8),
+        seed.toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    )[0];
+
     await program.methods
-      .depositSolHack(amount, seed)
+      .depositSolHack(amount)
       .accounts({
         signer: signer.publicKey,
         payout: payout.publicKey,
         protocol,
+        vulnerability,
         hack,
         vault,
         // vulnerability: doxxVulnerability,

@@ -42,14 +42,6 @@ impl<'info> RegisterProtocol<'info> {
             return err!(ErrorCode::ProtocolNameEmpty);
         }
 
-        // if gpg_pubkey.len() < MIN_GPG_LENGTH {
-        //     return err!(ErrorCode::GPGKeyTooSmall);
-        // } else if gpg_pubkey.len() > MAX_GPG_LENGTH {
-        //     return err!(ErrorCode::GPGKeyTooBig);
-        // } else if gpg_pubkey.len() == 0 {
-        //     return err!(ErrorCode::GPGKeyEmpty);
-        // }
-
         // pub owner: Pubkey,
         // pub sol_vault: Pubkey,
         // pub name: String,

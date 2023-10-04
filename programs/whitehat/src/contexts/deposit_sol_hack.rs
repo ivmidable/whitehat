@@ -1,10 +1,10 @@
-use crate::state::{Protocol, SolHack};
+use crate::state::{Protocol, SolHack, Vulnerability};
 use anchor_lang::prelude::*;
 use anchor_lang::system_program::{transfer, Transfer};
 use std::collections::BTreeMap;
 
 #[derive(Accounts)]
-#[instruction(amount: u64, seed: u64)]
+#[instruction(amount: u64)]
 pub struct DepositSolHack<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -23,9 +23,15 @@ pub struct DepositSolHack<'info> {
     )]
     vault: SystemAccount<'info>,
     #[account(
+        has_one = payout,
+        seeds = [b"vulnerability", protocol.key().as_ref(), vulnerability.id.to_le_bytes().as_ref(), vulnerability.seed.to_le_bytes().as_ref()],
+        bump = vulnerability.bump,
+    )]
+    pub vulnerability: Account<'info, Vulnerability>,
+    #[account(
         init,
         payer = signer,
-        seeds = [b"hack", protocol.key().as_ref(), amount.to_le_bytes().as_ref(), seed.to_le_bytes().as_ref()],
+        seeds = [b"hack", protocol.key().as_ref(), amount.to_le_bytes().as_ref()],
         bump,
         space = SolHack::LEN
     )]
@@ -38,7 +44,6 @@ impl<'info> DepositSolHack<'info> {
         &mut self,
         bumps: &BTreeMap<String, u8>,
         amount: u64,
-        seed: u64,
     ) -> Result<()> {
         let hack = &mut self.hack;
 
@@ -55,7 +60,6 @@ impl<'info> DepositSolHack<'info> {
         hack.amount = amount;
         hack.bump = *bumps.get("hack").unwrap();
         hack.created_at = Clock::get()?.unix_timestamp;
-        hack.seed = seed;
 
         let protocol = &mut self.protocol;
 

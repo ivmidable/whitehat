@@ -9,7 +9,6 @@ pub struct SolHack {
     pub amount: u64,
     pub created_at: i64,
     pub bump: u8,
-    pub seed: u64,
 }
 
 impl SolHack {

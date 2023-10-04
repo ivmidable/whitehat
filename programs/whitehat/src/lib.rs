@@ -26,9 +26,10 @@ pub mod whitehat {
     pub fn report_vulnerability(
         ctx: Context<ReportVulnerability>,
         message: Vec<u8>,
+        id: u64,
         seed: u64,
     ) -> Result<()> {
-        ctx.accounts.report_vulnerability(&ctx.bumps, message, seed)
+        ctx.accounts.report_vulnerability(&ctx.bumps, message, id, seed)
     }
 
     // turns reviewed from `false` to `true` on vulnerability pda, only protocol owner
@@ -37,8 +38,8 @@ pub mod whitehat {
     }
 
     // deposit from signer to protocol vault anonymously, hacker input payout adress through instruction accounts
-    pub fn deposit_sol_hack(ctx: Context<DepositSolHack>, amount: u64, seed: u64) -> Result<()> {
-        ctx.accounts.deposit_sol_hack(&ctx.bumps, amount, seed)
+    pub fn deposit_sol_hack(ctx: Context<DepositSolHack>, amount: u64) -> Result<()> {
+        ctx.accounts.deposit_sol_hack(&ctx.bumps, amount)
     }
 
     // (ONLY PROTOCOL OWNER) pay the hacker to inputed payout address for % set by protocol
