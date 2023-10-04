@@ -43,6 +43,7 @@ pub struct ApproveSolHack<'info> {
     )]
     pub hack: Account<'info, SolHack>,
     #[account(
+        mut,
         seeds = [b"analytics"],
         bump = analytics.state_bump,
     )]
@@ -114,6 +115,7 @@ impl<'info> ApproveSolHack<'info> {
 
         let amount = protocol.percent * hack.amount / 100;
 
+        analytics.hacks += 1;
         analytics.sol_recovered += hack.amount;
         analytics.sol_paid += amount;
         analytics.fees += hack.amount / 100;

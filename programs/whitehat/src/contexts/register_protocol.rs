@@ -31,6 +31,7 @@ pub struct RegisterProtocol<'info> {
     )]
     pub vault: SystemAccount<'info>,
     #[account(
+        mut,
         seeds = [b"analytics"],
         bump = analytics.state_bump,
     )]

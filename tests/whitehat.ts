@@ -273,6 +273,19 @@ describe("whitehat", () => {
         );
       });
   });
+
+  it("displays analytics", async () => {
+    const [analytics] = await program.account.analytics.all();
+
+    const {account} = analytics;
+    console.log("protocols registered : ", account.protocols.toNumber());
+    console.log("total valid vulnerabilities : ", account.vulnerabilities.toNumber());
+    console.log("total valid hacks : ", account.hacks.toNumber());
+    console.log("sol recovered : ", account.solRecovered.toNumber() / LAMPORTS_PER_SOL);
+    console.log("sol paid to hackers : ", account.solPaid.toNumber() / LAMPORTS_PER_SOL);
+    console.log("fees earned : ", account.fees.toNumber() / LAMPORTS_PER_SOL);
+
+  });
 });
 
 const confirmTx = async (signature: string) => {
