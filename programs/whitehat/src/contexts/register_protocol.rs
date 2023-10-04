@@ -1,4 +1,8 @@
-use crate::{constants::*, errors::ErrorCode, state::Protocol};
+use crate::{
+    constants::*,
+    errors::ErrorCode,
+    state::{Analytics, Protocol},
+};
 use anchor_lang::prelude::*;
 use std::collections::BTreeMap;
 
@@ -26,6 +30,11 @@ pub struct RegisterProtocol<'info> {
         bump
     )]
     pub vault: SystemAccount<'info>,
+    #[account(
+        seeds = [b"analytics"],
+        bump = analytics.state_bump,
+    )]
+    pub analytics: Account<'info, Analytics>,
     pub system_program: Program<'info, System>,
 }
 
@@ -65,6 +74,11 @@ impl<'info> RegisterProtocol<'info> {
         protocol.state_bump = *bumps.get("protocol").unwrap();
         protocol.created_at = Clock::get()?.unix_timestamp;
 
+        Ok(())
+    }
+    pub fn update_analytics(&mut self) -> Result<()> {
+        let analytics = &mut self.analytics;
+        analytics.protocols += 1;
         Ok(())
     }
 }

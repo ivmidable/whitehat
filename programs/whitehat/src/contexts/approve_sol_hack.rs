@@ -1,4 +1,4 @@
-use crate::state::{SolHack, Protocol};
+use crate::state::{Analytics, Protocol, SolHack};
 use anchor_lang::prelude::*;
 use anchor_lang::system_program::{transfer, Transfer};
 
@@ -20,6 +20,12 @@ pub struct ApproveSolHack<'info> {
     vault: SystemAccount<'info>,
     #[account(
         mut,
+        seeds = [b"vault"],
+        bump = analytics.vault_bump
+    )]
+    fees: SystemAccount<'info>,
+    #[account(
+        mut,
         has_one = owner,
         seeds = [b"protocol", owner.key().as_ref()],
         bump = protocol.state_bump,
@@ -36,6 +42,11 @@ pub struct ApproveSolHack<'info> {
         bump = hack.bump,
     )]
     pub hack: Account<'info, SolHack>,
+    #[account(
+        seeds = [b"analytics"],
+        bump = analytics.state_bump,
+    )]
+    pub analytics: Account<'info, Analytics>,
     pub system_program: Program<'info, System>,
 }
 
@@ -57,13 +68,10 @@ impl<'info> ApproveSolHack<'info> {
         // due amount = protocol %
         // due amount = protocol % * amount / 100
 
-        let amount = protocol.percent * hack.amount / 100;
-        protocol.paid += amount;
+        let fee = hack.amount / 100;
 
-        let accounts = Transfer {
-            from: self.vault.to_account_info(),
-            to: self.payout.to_account_info(),
-        };
+        let amount = (protocol.percent * hack.amount / 100) - fee;
+        protocol.paid += amount;
 
         let seeds = &[
             b"vault",
@@ -73,12 +81,42 @@ impl<'info> ApproveSolHack<'info> {
 
         let signer_seeds = &[&seeds[..]];
 
-        let ctx_cpi = CpiContext::new_with_signer(
+        let hacker_accounts = Transfer {
+            from: self.vault.to_account_info(),
+            to: self.payout.to_account_info(),
+        };
+
+        let hacker_cpi = CpiContext::new_with_signer(
             self.system_program.to_account_info(),
-            accounts,
+            hacker_accounts,
             signer_seeds,
         );
 
-        transfer(ctx_cpi, amount)
+        transfer(hacker_cpi, amount)?;
+
+        let fee_accounts = Transfer {
+            from: self.vault.to_account_info(),
+            to: self.fees.to_account_info(),
+        };
+
+        let fee_cpi = CpiContext::new_with_signer(
+            self.system_program.to_account_info(),
+            fee_accounts,
+            signer_seeds,
+        );
+        transfer(fee_cpi, fee)
+    }
+
+    pub fn update_analytics(&mut self) -> Result<()> {
+        let analytics = &mut self.analytics;
+        let hack = &mut self.hack;
+        let protocol = &mut self.protocol;
+
+        let amount = protocol.percent * hack.amount / 100;
+
+        analytics.sol_recovered += hack.amount;
+        analytics.sol_paid += amount;
+        analytics.fees += hack.amount / 100;
+        Ok(())
     }
 }

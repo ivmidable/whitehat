@@ -18,6 +18,7 @@ describe("whitehat", () => {
   const program = anchor.workspace.Whitehat as Program<Whitehat>;
   const connection: Connection = anchor.getProvider().connection;
 
+  const admin = new Keypair();
   const owner = new Keypair();
   const signer = new Keypair();
   const payout = new Keypair();
@@ -28,6 +29,20 @@ describe("whitehat", () => {
   //  state
   //  protocol
   //  system_program
+
+  const analytics = PublicKey.findProgramAddressSync(
+    [Buffer.from("analytics")],
+    program.programId
+  )[0];
+  const whauth = PublicKey.findProgramAddressSync(
+    [Buffer.from("auth")],
+    program.programId
+  )[0];
+  const whvault = PublicKey.findProgramAddressSync(
+    [Buffer.from("vault")],
+    program.programId
+  )[0];
+
 
   const protocol = PublicKey.findProgramAddressSync(
     [Buffer.from("protocol"), owner.publicKey.toBuffer()],
@@ -67,6 +82,13 @@ describe("whitehat", () => {
 
   it("airdrop", async () => {
     await anchor
+    .getProvider()
+    .connection.requestAirdrop(
+      admin.publicKey,
+      100 * anchor.web3.LAMPORTS_PER_SOL
+    )
+    .then(confirmTx);
+    await anchor
       .getProvider()
       .connection.requestAirdrop(
         owner.publicKey,
@@ -82,6 +104,21 @@ describe("whitehat", () => {
       .then(confirmTx);
   });
 
+  it("initialize analytics", async () => {
+    await program.methods
+      .initialize()
+      .accounts({
+        admin: admin.publicKey,
+        auth: whauth,
+        vault: whvault,
+        analytics,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([admin])
+      .rpc()
+      .then(confirmTx);
+  });
+
   it("register protocol", async () => {
     await program.methods
       .registerProtocol("whitehat", percent)
@@ -90,6 +127,7 @@ describe("whitehat", () => {
         auth,
         vault,
         protocol,
+        analytics,
         systemProgram: SystemProgram.programId,
       })
       .signers([owner])
@@ -157,6 +195,7 @@ describe("whitehat", () => {
         owner: owner.publicKey,
         protocol,
         vulnerability,
+        analytics
       })
       .signers([owner])
       .rpc()
@@ -210,7 +249,8 @@ describe("whitehat", () => {
         hack,
         auth,
         vault,
-        // vulnerability,
+        fees: whvault,
+        analytics,
         systemProgram: SystemProgram.programId,
       })
       .signers([owner])
@@ -224,6 +264,11 @@ describe("whitehat", () => {
         console.log(
           "new payout balance : ",
           (await connection.getBalance(payout.publicKey)) / LAMPORTS_PER_SOL +
+            " sol"
+        );
+        console.log(
+          "whitehat fees earned : ",
+          (await connection.getBalance(whvault)) / LAMPORTS_PER_SOL +
             " sol"
         );
       });
