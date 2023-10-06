@@ -225,7 +225,6 @@ describe("whitehat", () => {
         vulnerability,
         hack,
         vault,
-        // vulnerability: doxxVulnerability,
         systemProgram: SystemProgram.programId,
       })
       .signers([signer])

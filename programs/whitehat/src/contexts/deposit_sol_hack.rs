@@ -40,11 +40,7 @@ pub struct DepositSolHack<'info> {
 }
 
 impl<'info> DepositSolHack<'info> {
-    pub fn deposit_sol_hack(
-        &mut self,
-        bumps: &BTreeMap<String, u8>,
-        amount: u64,
-    ) -> Result<()> {
+    pub fn deposit_sol_hack(&mut self, bumps: &BTreeMap<String, u8>, amount: u64) -> Result<()> {
         let hack = &mut self.hack;
 
         // pub payout: Pubkey,
