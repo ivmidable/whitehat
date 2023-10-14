@@ -1,14 +1,16 @@
 [features]
-seeds = false
+seeds = true
 skip-lint = false
 [programs.localnet]
-whitehat = "SMBKnshAzPi9WZQEUyRxsm6PYZbyZEmxbxbaoMWNHkA"
+whitehat = "WHATtP4qZ6GCva5NafqLaTKozQqr9VjL6SXWwCFvvyp"
+[programs.devnet]
+whitehat = "WHATtP4qZ6GCva5NafqLaTKozQqr9VjL6SXWwCFvvyp"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "devnet"
 wallet = "/home/dev/.config/solana/id.json"
 
 [scripts]

@@ -7,13 +7,13 @@ mod ixs;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let config = helpers::Config::new(&args).unwrap_or_else(|err| {
-        println!("problem parsing arguments: {err}");
-        helpers::help();
-        process::exit(1);
-    });
+    // let config = helpers::Config::new(&args).unwrap_or_else(|err| {
+    //     println!("problem parsing arguments: {err}");
+    //     helpers::help();
+    //     process::exit(1);
+    // });
 
-    match config.mode.as_str() {
+    match args[1].as_str() {
         "cipher" => {
             println!("encryption mode");
             let pubkey =

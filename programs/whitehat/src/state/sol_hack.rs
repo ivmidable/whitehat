@@ -4,8 +4,9 @@ use crate::constants::*;
 
 #[account]
 pub struct SolHack {
-    pub payout: Pubkey,
     pub protocol: Pubkey,
+    pub payout: Pubkey,
+    pub reviewed: bool,
     pub amount: u64,
     pub created_at: i64,
     pub bump: u8,

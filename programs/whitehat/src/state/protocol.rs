@@ -5,6 +5,7 @@ use crate::constants::*;
 #[account]
 pub struct Protocol {
     pub owner: Pubkey,
+    pub encryption: Pubkey,
     pub vault: Pubkey,
     pub name: String,
     pub percent: u64,
@@ -19,7 +20,7 @@ pub struct Protocol {
 
 impl Protocol {
     pub const LEN: usize = DISCRIMINATOR_LENGTH
-        + PUBLIC_KEY_LENGTH * 2 // owner
+        + PUBLIC_KEY_LENGTH * 3 // owner, encryption, vault
         + STRING_LENGTH_PREFIX 
         + MAX_PROTOCOL_LENGTH
         + 8 * 4 // percent, paid, vulnerabilities, hacks

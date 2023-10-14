@@ -22,6 +22,7 @@ describe("whitehat", () => {
   const owner = new Keypair();
   const signer = new Keypair();
   const payout = new Keypair();
+  const encryption = new Keypair();
 
   //  owner
   //  auth
@@ -42,7 +43,6 @@ describe("whitehat", () => {
     [Buffer.from("vault")],
     program.programId
   )[0];
-
 
   const protocol = PublicKey.findProgramAddressSync(
     [Buffer.from("protocol"), owner.publicKey.toBuffer()],
@@ -82,12 +82,12 @@ describe("whitehat", () => {
 
   it("airdrop", async () => {
     await anchor
-    .getProvider()
-    .connection.requestAirdrop(
-      admin.publicKey,
-      100 * anchor.web3.LAMPORTS_PER_SOL
-    )
-    .then(confirmTx);
+      .getProvider()
+      .connection.requestAirdrop(
+        admin.publicKey,
+        100 * anchor.web3.LAMPORTS_PER_SOL
+      )
+      .then(confirmTx);
     await anchor
       .getProvider()
       .connection.requestAirdrop(
@@ -99,6 +99,13 @@ describe("whitehat", () => {
       .getProvider()
       .connection.requestAirdrop(
         signer.publicKey,
+        100 * anchor.web3.LAMPORTS_PER_SOL
+      )
+      .then(confirmTx);
+    await anchor
+      .getProvider()
+      .connection.requestAirdrop(
+        encryption.publicKey,
         100 * anchor.web3.LAMPORTS_PER_SOL
       )
       .then(confirmTx);
@@ -124,6 +131,7 @@ describe("whitehat", () => {
       .registerProtocol("whitehat", percent)
       .accounts({
         owner: owner.publicKey,
+        encryption: encryption.publicKey,
         auth,
         vault,
         protocol,
@@ -195,7 +203,7 @@ describe("whitehat", () => {
         owner: owner.publicKey,
         protocol,
         vulnerability,
-        analytics
+        analytics,
       })
       .signers([owner])
       .rpc()
@@ -267,8 +275,7 @@ describe("whitehat", () => {
         );
         console.log(
           "whitehat fees earned : ",
-          (await connection.getBalance(whvault)) / LAMPORTS_PER_SOL +
-            " sol"
+          (await connection.getBalance(whvault)) / LAMPORTS_PER_SOL + " sol"
         );
       });
   });
@@ -276,14 +283,22 @@ describe("whitehat", () => {
   it("displays analytics", async () => {
     const [analytics] = await program.account.analytics.all();
 
-    const {account} = analytics;
+    const { account } = analytics;
     console.log("protocols registered : ", account.protocols.toNumber());
-    console.log("total valid vulnerabilities : ", account.vulnerabilities.toNumber());
+    console.log(
+      "total valid vulnerabilities : ",
+      account.vulnerabilities.toNumber()
+    );
     console.log("total valid hacks : ", account.hacks.toNumber());
-    console.log("sol recovered : ", account.solRecovered.toNumber() / LAMPORTS_PER_SOL);
-    console.log("sol paid to hackers : ", account.solPaid.toNumber() / LAMPORTS_PER_SOL);
+    console.log(
+      "sol recovered : ",
+      account.solRecovered.toNumber() / LAMPORTS_PER_SOL
+    );
+    console.log(
+      "sol paid to hackers : ",
+      account.solPaid.toNumber() / LAMPORTS_PER_SOL
+    );
     console.log("fees earned : ", account.fees.toNumber() / LAMPORTS_PER_SOL);
-
   });
 });
 

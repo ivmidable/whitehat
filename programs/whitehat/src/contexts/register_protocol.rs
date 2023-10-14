@@ -11,6 +11,8 @@ use std::collections::BTreeMap;
 pub struct RegisterProtocol<'info> {
     #[account(mut)]
     pub owner: Signer<'info>,
+    #[account()]
+    pub encryption: SystemAccount<'info>,
     #[account(
         init,
         payer = owner,
@@ -65,6 +67,7 @@ impl<'info> RegisterProtocol<'info> {
 
         let protocol = &mut self.protocol;
         protocol.owner = self.owner.key();
+        protocol.encryption = self.encryption.key();
         protocol.name = name;
         protocol.percent = percent;
         protocol.paid = 0;
