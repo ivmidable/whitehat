@@ -1,5 +1,10 @@
-use crate::state::{Protocol, SolHack, Vulnerability};
+use crate::{
+    errors::ErrorCode,
+    state::{Protocol, SolHack, Vulnerability},
+};
+
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
 use anchor_lang::system_program::{transfer, Transfer};
 use std::collections::BTreeMap;
 
@@ -42,6 +47,10 @@ pub struct DepositSolHack<'info> {
 impl<'info> DepositSolHack<'info> {
     pub fn deposit_sol_hack(&mut self, bumps: &BTreeMap<String, u8>, amount: u64) -> Result<()> {
         let hack = &mut self.hack;
+
+        if amount < 5 * LAMPORTS_PER_SOL {
+            return Err(ErrorCode::HackAmountTooLow.into());
+        }
 
         // pub payout: Pubkey,
         // pub protocol: Pubkey,

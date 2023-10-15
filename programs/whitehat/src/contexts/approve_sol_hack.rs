@@ -71,9 +71,38 @@ impl<'info> ApproveSolHack<'info> {
 
         let fee = hack.amount / 100;
 
-        let amount = (protocol.percent * hack.amount / 100) - fee;
+        let amount =
+            u64::try_from((protocol.percent as u128 * hack.amount as u128 / 100u128) - fee as u128)
+                .unwrap();
         protocol.paid += amount;
 
+        self.send_from_vault_to_hacker(amount)?;
+        self.send_fee_to_fee_accounts(fee)
+    }
+
+    pub fn send_fee_to_fee_accounts(&mut self, fee: u64) -> Result<()> {
+        let seeds = &[
+            b"vault",
+            self.protocol.to_account_info().key.as_ref(),
+            &[self.protocol.vault_bump],
+        ];
+
+        let signer_seeds = &[&seeds[..]];
+
+        let fee_accounts = Transfer {
+            from: self.vault.to_account_info(),
+            to: self.fees.to_account_info(),
+        };
+
+        let fee_cpi = CpiContext::new_with_signer(
+            self.system_program.to_account_info(),
+            fee_accounts,
+            signer_seeds,
+        );
+        transfer(fee_cpi, fee)
+    }
+
+    pub fn send_from_vault_to_hacker(&mut self, amount: u64) -> Result<()> {
         let seeds = &[
             b"vault",
             self.protocol.to_account_info().key.as_ref(),
@@ -93,19 +122,7 @@ impl<'info> ApproveSolHack<'info> {
             signer_seeds,
         );
 
-        transfer(hacker_cpi, amount)?;
-
-        let fee_accounts = Transfer {
-            from: self.vault.to_account_info(),
-            to: self.fees.to_account_info(),
-        };
-
-        let fee_cpi = CpiContext::new_with_signer(
-            self.system_program.to_account_info(),
-            fee_accounts,
-            signer_seeds,
-        );
-        transfer(fee_cpi, fee)
+        transfer(hacker_cpi, amount)
     }
 
     pub fn update_analytics(&mut self) -> Result<()> {
@@ -113,7 +130,7 @@ impl<'info> ApproveSolHack<'info> {
         let hack = &mut self.hack;
         let protocol = &mut self.protocol;
 
-        let amount = protocol.percent * hack.amount / 100;
+        let amount = u64::try_from(protocol.percent as u128 * hack.amount as u128 / 100).unwrap();
 
         analytics.hacks += 1;
         analytics.sol_recovered += hack.amount;

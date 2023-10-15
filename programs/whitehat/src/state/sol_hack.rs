@@ -19,6 +19,5 @@ impl SolHack {
         + 8
         + 1 // reviewed
         + TIMESTAMP_LENGTH // created_at
-        + BUMP_LENGTH // bump
-        + 8; // seed
+        + BUMP_LENGTH; // bump
 }

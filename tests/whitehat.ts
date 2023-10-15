@@ -59,7 +59,7 @@ describe("whitehat", () => {
     program.programId
   )[0];
 
-  const percent = new BN(10);
+  const percent = 1;
   const seed = new BN(1);
 
   const message = new Uint8Array([
@@ -127,20 +127,26 @@ describe("whitehat", () => {
   });
 
   it("register protocol", async () => {
-    await program.methods
-      .registerProtocol("whitehat", percent)
-      .accounts({
-        owner: owner.publicKey,
-        encryption: encryption.publicKey,
-        auth,
-        vault,
-        protocol,
-        analytics,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([owner])
-      .rpc()
-      .then(confirmTx);
+    try {
+      await program.methods
+        .registerProtocol("whitehat", percent)
+        .accounts({
+          owner: owner.publicKey,
+          encryption: encryption.publicKey,
+          auth,
+          vault,
+          protocol,
+          analytics,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([owner])
+        .rpc()
+        .then(confirmTx);
+    } catch (e) {
+      console.log(e);
+      throw "boom";
+    }
+
   });
 
   it("report vulnerability", async () => {
@@ -224,26 +230,34 @@ describe("whitehat", () => {
       program.programId
     )[0];
 
-    await program.methods
-      .depositSolHack(amount)
-      .accounts({
-        signer: signer.publicKey,
-        payout: payout.publicKey,
-        protocol,
-        vulnerability,
-        hack,
-        vault,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([signer])
-      .rpc()
-      .then(confirmTx)
-      .then(async () => {
-        console.log(
-          "new vault balance : ",
-          (await connection.getBalance(vault)) / LAMPORTS_PER_SOL + " sol"
-        );
-      });
+    console.log("Amount: ", amount.toString());
+    10_000_000_000
+    try {
+      await program.methods
+        .depositSolHack(amount)
+        .accounts({
+          signer: signer.publicKey,
+          payout: payout.publicKey,
+          protocol,
+          vulnerability,
+          hack,
+          vault,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([signer])
+        .rpc()
+        .then(confirmTx);
+
+    } catch (e) {
+      console.log(e);
+      throw "boom";
+    }
+    /*  .then(async () => {
+     console.log(
+       "new vault balance : ",
+       (await connection.getBalance(vault)) / LAMPORTS_PER_SOL + " sol"
+     );
+   });*/
   });
 
   it("approve hack", async () => {
@@ -271,7 +285,7 @@ describe("whitehat", () => {
         console.log(
           "new payout balance : ",
           (await connection.getBalance(payout.publicKey)) / LAMPORTS_PER_SOL +
-            " sol"
+          " sol"
         );
         console.log(
           "whitehat fees earned : ",

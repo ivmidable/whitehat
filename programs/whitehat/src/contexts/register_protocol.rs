@@ -7,7 +7,7 @@ use anchor_lang::prelude::*;
 use std::collections::BTreeMap;
 
 #[derive(Accounts)]
-#[instruction(name: String, percent: u64)]
+#[instruction(name: String, percent: u8)]
 pub struct RegisterProtocol<'info> {
     #[account(mut)]
     pub owner: Signer<'info>,
@@ -46,7 +46,7 @@ impl<'info> RegisterProtocol<'info> {
         &mut self,
         bumps: &BTreeMap<String, u8>,
         name: String,
-        percent: u64,
+        percent: u8,
     ) -> Result<()> {
         if name.len() > MAX_PROTOCOL_LENGTH {
             return err!(ErrorCode::ProtocolNameTooLong);

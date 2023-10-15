@@ -10,6 +10,8 @@ pub enum ErrorCode {
     HackerNameEmpty,
     #[msg("Hacker Name Too Long, 50 Characters Maximum.")]
     HackerNameTooLong,
+    #[msg("Hack amount is too low, gotta steal more tha 200 SOL.")]
+    HackAmountTooLow,
     #[msg("GPG Key Empty.")]
     GPGKeyEmpty,
     #[msg("GPG Key Too Small, 2048 Characters Min.")]

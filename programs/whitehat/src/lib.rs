@@ -22,7 +22,7 @@ pub mod whitehat {
     pub fn register_protocol(
         ctx: Context<RegisterProtocol>,
         name: String,
-        percent: u64,
+        percent: u8,
     ) -> Result<()> {
         ctx.accounts.register_protocol(&ctx.bumps, name, percent)?;
         ctx.accounts.update_analytics()

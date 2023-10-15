@@ -8,8 +8,8 @@ pub struct Protocol {
     pub encryption: Pubkey,
     pub vault: Pubkey,
     pub name: String,
-    pub percent: u64,
-    pub paid : u64,
+    pub percent: u8,
+    pub paid: u64,
     pub vulnerabilities: u64,
     pub hacks: u64,
     pub created_at: i64,
@@ -21,9 +21,10 @@ pub struct Protocol {
 impl Protocol {
     pub const LEN: usize = DISCRIMINATOR_LENGTH
         + PUBLIC_KEY_LENGTH * 3 // owner, encryption, vault
-        + STRING_LENGTH_PREFIX 
+        + STRING_LENGTH_PREFIX
         + MAX_PROTOCOL_LENGTH
-        + 8 * 4 // percent, paid, vulnerabilities, hacks
+        + 1 // percent
+        + 8 * 3 // paid, vulnerabilities, hacks
         + TIMESTAMP_LENGTH // created_at
         + BUMP_LENGTH * 3; // bump
 }
